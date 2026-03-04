@@ -26,6 +26,12 @@ steps:
     id: build-web
     waitFor: ['build']
 
+  # Build PostgreSQL image for Cloud Run (demo: separate db service)
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['build', '-t', '${_DB_IMAGE}:$SHORT_SHA', '-f', 'apps/db/Dockerfile', '.']
+    id: build-db
+    waitFor: ['build']
+
   # Tag images for Artifact Registry (use trigger substitutions: _AR_HOSTNAME, _AR_PROJECT_ID, _AR_REPOSITORY)
   - name: 'gcr.io/cloud-builders/docker'
     args: ['tag', '${_API_IMAGE}:$SHORT_SHA', '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/api:$SHORT_SHA']
@@ -35,6 +41,10 @@ steps:
     args: ['tag', '${_WEB_IMAGE}:$SHORT_SHA', '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/web:$SHORT_SHA']
     id: tag-web
     waitFor: ['build-web']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['tag', '${_DB_IMAGE}:$SHORT_SHA', '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/db:$SHORT_SHA']
+    id: tag-db
+    waitFor: ['build-db']
 
   # Push images to Artifact Registry
   - name: 'gcr.io/cloud-builders/docker'
@@ -45,6 +55,28 @@ steps:
     args: ['push', '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/web:$SHORT_SHA']
     id: push-web
     waitFor: ['tag-web']
+  - name: 'gcr.io/cloud-builders/docker'
+    args: ['push', '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/db:$SHORT_SHA']
+    id: push-db
+    waitFor: ['tag-db']
+
+  # Deploy PostgreSQL to Cloud Run (demo: separate db service; storage is ephemeral)
+  - name: 'gcr.io/cloud-builders/gcloud'
+    args:
+      - 'run'
+      - 'deploy'
+      - '${_DB_SERVICE_NAME}'
+      - '--image'
+      - '${_AR_HOSTNAME}/${_AR_PROJECT_ID}/${_AR_REPOSITORY}/db:$SHORT_SHA'
+      - '--region'
+      - '${_DEPLOY_REGION}'
+      - '--platform'
+      - '${_PLATFORM}'
+      - '--allow-unauthenticated'
+      - '--set-env-vars'
+      - 'POSTGRES_USER=postgres,POSTGRES_PASSWORD=postgres,POSTGRES_DB=postgres'
+    id: deploy-db
+    waitFor: ['push-db']
 
   # Deploy API to Cloud Run (use trigger substitutions: _SERVICE_NAME, _DEPLOY_REGION, _PLATFORM)
   - name: 'gcr.io/cloud-builders/gcloud'
@@ -60,11 +92,12 @@ steps:
       - '${_PLATFORM}'
       - '--allow-unauthenticated'
     id: deploy-api
-    waitFor: ['push-api']
+    waitFor: ['push-api', 'deploy-db']
 
 substitutions:
   _API_IMAGE: api
   _WEB_IMAGE: web
+  _DB_IMAGE: db
   _API_URL: ''
   # Artifact Registry (override in trigger or leave as defaults)
   _AR_HOSTNAME: africa-south1-docker.pkg.dev
@@ -74,6 +107,7 @@ substitutions:
   _DEPLOY_REGION: africa-south1
   _PLATFORM: managed
   _SERVICE_NAME: study-jam-week2-monorepo
+  _DB_SERVICE_NAME: study-jam-week2-monorepo-db
 
 options:
   logging: CLOUD_LOGGING_ONLY

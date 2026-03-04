@@ -4,11 +4,14 @@ import { migrate } from 'drizzle-orm/node-postgres/migrator';
 import { AppModule } from './app.module';
 
 async function bootstrap() {
+  const port = Number(process.env.PORT) || 8080;
+  console.log('[startup] Creating Nest application...');
   const app = await NestFactory.create(AppModule);
   app.enableCors({ origin: true });
-  const port = Number(process.env.PORT) || 8080;
+  console.log('[startup] Listening on 0.0.0.0:%s', port);
   // Cloud Run requires listening on 0.0.0.0 (all interfaces), not just localhost
   await app.listen(port, '0.0.0.0');
+  console.log('[startup] Server ready');
 
   // Run migrations after listening so Cloud Run startup probe succeeds even if DB is slow/unreachable
   const connectionString =

@@ -92,6 +92,7 @@ steps:
       - '${_PLATFORM}'
       - '--allow-unauthenticated'
       - '--cpu-boost'
+      - '--memory=512Mi'
     id: deploy-api
     waitFor: ['push-api', 'deploy-db']
 

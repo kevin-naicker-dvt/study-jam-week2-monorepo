@@ -1,0 +1,32 @@
+1. Create a 3 tier app framework
+    1.1 UX - ReactJS
+    2.2 Backend - NestJS
+    2.3 ORM - Drizzle
+    2.4 Database - PostgreSQL
+
+2. Containerization - Docker
+    2.1. CI (Build) - via GCP Cloud Build
+    2.2. CD (Deloy) - via GCP Cloud Run
+
+3. App Use Cases
+    3.1. Register New User (Name, Surname, Email, Password)
+    3.2. Login User (Access Granted, Access Denied)
+
+4. Testing
+    4.1. Unit Testing - None for now
+    4.2. Build and Deployment Check - Yes
+
+5. Guardrails
+    5.1. For now, keep the the PostgreSQL in a docker container and allow public access for demo purposes
+    5.2. Use GCP created domains for now
+
+6. MCP servers
+    6.1. None for now
+
+7. Spec Driven Development
+    7.1. None for Now
+
+
+
+
+

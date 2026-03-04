@@ -47,7 +47,7 @@ steps:
     waitFor: ['tag-web']
 
   # Deploy API to Cloud Run (use trigger substitutions: _SERVICE_NAME, _DEPLOY_REGION, _PLATFORM)
-  - name: 'gcr.io/google.com/cloud-builders/gcloud'
+  - name: 'gcr.io/cloud-builders/gcloud'
     args:
       - 'run'
       - 'deploy'

@@ -91,6 +91,7 @@ steps:
       - '--platform'
       - '${_PLATFORM}'
       - '--allow-unauthenticated'
+      - '--cpu-boost'
     id: deploy-api
     waitFor: ['push-api', 'deploy-db']
 

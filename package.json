@@ -1,0 +1,17 @@
+{
+  "name": "study-jam-week2-monorepo",
+  "private": true,
+  "workspaces": [
+    "apps/*"
+  ],
+  "scripts": {
+    "dev:api": "npm run dev --workspace=api",
+    "dev:web": "npm run dev --workspace=web",
+    "build:api": "npm run build --workspace=api",
+    "build:web": "npm run build --workspace=web",
+    "build": "npm run build:api && npm run build:web"
+  },
+  "engines": {
+    "node": ">=18"
+  }
+}

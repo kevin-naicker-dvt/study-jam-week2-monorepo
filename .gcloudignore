@@ -1,0 +1,10 @@
+# Ignore local dev and IDE files for Cloud Build
+.git
+.gitignore
+node_modules
+**/node_modules
+.env
+.env.*
+*.log
+.cursor
+.vscode

@@ -14,15 +14,15 @@ steps:
     dir: '.'
     waitFor: ['install']
 
-  # Build API image
+  # Build API image (context = repo root so package-lock.json is available)
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_API_IMAGE}:$SHORT_SHA', '-f', 'apps/api/Dockerfile', 'apps/api']
+    args: ['build', '-t', '${_API_IMAGE}:$SHORT_SHA', '-f', 'apps/api/Dockerfile', '.']
     id: build-api
     waitFor: ['build']
 
-  # Build Web image (optional: set _WEB_IMAGE for frontend deploy)
+  # Build Web image (context = repo root; optional: set _WEB_IMAGE for frontend deploy)
   - name: 'gcr.io/cloud-builders/docker'
-    args: ['build', '-t', '${_WEB_IMAGE}:$SHORT_SHA', '-f', 'apps/web/Dockerfile', '--build-arg', 'VITE_API_URL=${_API_URL}', 'apps/web']
+    args: ['build', '-t', '${_WEB_IMAGE}:$SHORT_SHA', '-f', 'apps/web/Dockerfile', '--build-arg', 'VITE_API_URL=${_API_URL}', '.']
     id: build-web
     waitFor: ['build']
 
